@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>David's AI Sales System v1.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;min-height:100vh;color:#1a1a2e}
+.topbar{background:#1F3864;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.title{font-size:16px;font-weight:600}.sub{font-size:11px;opacity:.7;margin-top:2px}
+.status-row{display:flex;gap:14px;align-items:center;font-size:12px;flex-wrap:wrap}
+.sdot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;margin-right:5px;flex-shrink:0}
+.sdot.on{background:#22c55e}
+.container{max-width:800px;margin:24px auto;padding:0 16px}
+.banner{background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:#856404;line-height:1.5}
+.banner strong{display:block;margin-bottom:4px;font-size:14px}
+.card{background:#fff;border-radius:12px;border:1px solid #e5e7eb;margin-bottom:16px;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid #e5e7eb;padding:0 20px;background:#fafafa;overflow-x:auto}
+.tab{padding:11px 14px;font-size:13px;font-weight:500;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab.active{color:#1F3864;border-bottom-color:#1F3864;background:#fff}
+.pane{display:none;padding:20px}.pane.active{display:block}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.row1{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+@media(max-width:520px){.row2{grid-template-columns:1fr}}
+label{display:block;font-size:11px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+input,textarea{width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit;color:#111827;transition:border .15s}
+input:focus,textarea:focus{outline:none;border-color:#1F3864;box-shadow:0 0 0 3px rgba(31,56,100,.1)}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
+.sec{font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.pill{padding:5px 11px;border-radius:99px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:#f9fafb;color:#374151;transition:all .15s}
+.pill:hover,.pill.on{background:#1F3864;color:#fff;border-color:#1F3864}
+.badge{font-size:9px;padding:2px 5px;border-radius:99px;margin-left:3px;font-weight:700;vertical-align:middle}
+.bg{background:#dcfce7;color:#166534}.ba{background:#fef3c7;color:#92400e}
+.btns{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;gap:5px;transition:all .15s}
+.bn{background:#1F3864;color:#fff}.bn:hover{background:#162a4d}
+.bg2{background:#f3f4f6;color:#374151;border:1px solid #e5e7eb}.bg2:hover{background:#e5e7eb}
+.spin{display:none;align-items:center;gap:8px;color:#6b7280;font-size:13px;margin-top:12px;padding:10px 14px;background:#f9fafb;border-radius:8px}
+.spin.on{display:flex}
+.dots{display:flex;gap:4px}
+.dot{width:6px;height:6px;border-radius:50%;background:#1F3864;animation:pu 1s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes pu{0%,100%{opacity:.2}50%{opacity:1}}
+.out{display:none;margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+.out.on{display:block}
+.out-hdr{background:#f9fafb;border-bottom:1px solid #e5e7eb;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.out-lbl{font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.act{padding:5px 10px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid;display:flex;align-items:center;gap:3px;transition:opacity .15s}
+.act:hover{opacity:.8}
+.ac{background:#f3f4f6;color:#374151;border-color:#d1d5db}
+.ag{background:#e8f5e9;color:#1a73e8;border-color:#a8c7fa}
+.acal{background:#e8f5e9;color:#0f9d58;border-color:#a8d5b5}
+.ash{background:#e8f0fe;color:#1967d2;border-color:#a8c7fa}
+.out-body{padding:14px;font-size:13px;line-height:1.7;color:#111827;white-space:pre-wrap;font-family:'Courier New',monospace}
+.tracker{background:#f0fdf4;border-top:1px solid #bbf7d0;padding:9px 14px;font-size:12px;color:#166534;font-weight:500}
+.icp-tog{display:flex;gap:8px;margin-bottom:14px}
+.icp-btn{flex:1;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#f9fafb;color:#6b7280;text-align:center;transition:all .15s}
+.icp-btn.on{background:#1F3864;color:#fff;border-color:#1F3864}
+.cfg-f{margin-bottom:16px}
+.cfg-st{font-size:11px;margin-top:3px;color:#9ca3af}
+.cfg-st.ok{color:#166534}
+.warn{background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:11px 14px;font-size:12px;color:#856404;margin-bottom:14px;line-height:1.5}
+.info{background:#e8f0fe;border:1px solid #a8c7fa;border-radius:8px;padding:11px 14px;font-size:12px;color:#1967d2;margin-bottom:14px;line-height:1.5}
+.g-btn{width:100%;padding:11px;background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.g-btn:hover{background:#f8f9fa;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.g-btn.on{background:#e8f5e9;border-color:#0f9d58;color:#0f9d58}
+.rm{border-top:1px solid #fecaca;margin-top:24px;padding-top:14px}
+.rm-btn{width:100%;padding:10px;background:#fff;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.rm-btn:hover{background:#fef2f2}
+.toast{position:fixed;bottom:20px;right:20px;background:#1F3864;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none;z-index:9999;max-width:320px}
+.toast.on{opacity:1;transform:translateY(0)}
+.toast.err{background:#dc2626}
+.log-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;font-size:12px}
+.log-cell{background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:6px 10px;color:#374151}
+.log-hdr{font-weight:700;color:#6b7280;background:#f3f4f6}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><div class="title">David's AI Sales System</div><div class="sub">v1.1 · Drainage & Gutter · Built by NotYourAIDad</div></div>
+  <div class="status-row">
+    <span><span class="sdot" id="ai-dot"></span><span id="ai-lbl">AI not set up</span></span>
+    <span><span class="sdot" id="g-dot"></span><span id="g-lbl">Google not connected</span></span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="banner" id="banner">
+    <strong>⚙️ First-time setup required</strong>
+    Open the <strong>Settings</strong> tab. Add your DeepSeek API key and connect your Google account. Takes about 5 minutes. Total cost: $5.
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" onclick="goTab('intake',this)">📋 Bid intake</div>
+      <div class="tab" onclick="goTab('followup',this)">✉️ Follow-up</div>
+      <div class="tab" onclick="goTab('leadgen',this)">🔍 Lead gen</div>
+      <div class="tab" onclick="goTab('log',this)">📊 Activity log</div>
+      <div class="tab" onclick="goTab('settings',this)">⚙️ Settings</div>
+    </div>
+
+    <!-- ── INTAKE ─────────────────────────────── -->
+    <div class="pane active" id="pane-intake">
+      <div class="sec">Quick-fill prospect</div>
+      <div class="pills" id="pills-i"></div>
+      <div class="sec">Customer info</div>
+      <div class="row2">
+        <div><label>Contact name</label><input id="i-name" placeholder="First Last"/></div>
+        <div><label>Company</label><input id="i-co" placeholder="Company name"/></div>
+      </div>
+      <div class="row2">
+        <div><label>Phone</label><input id="i-ph" placeholder="303-555-0000"/></div>
+        <div><label>Email</label><input id="i-em" placeholder="name@company.com"/></div>
+      </div>
+      <div class="row1"><div><label>Job site / delivery address</label><input id="i-ad" placeholder="Street, City, State ZIP"/></div></div>
+      <div class="sec">Materials & notes</div>
+      <div class="row1"><div><label>Materials — one item per line</label><textarea id="i-mat" placeholder="- 6-inch corrugated pipe, 200 LF&#10;- Cast iron grating 12x12, qty 24"></textarea></div></div>
+      <div class="row1"><div><label>Special notes / deadlines</label><textarea id="i-nt" style="min-height:56px" placeholder="Phased delivery, HOA requirements, urgency..."></textarea></div></div>
+      <div class="btns">
+        <button class="btn bn" onclick="runIntake()">✦ Generate bid email</button>
+        <button class="btn bg2" onclick="clr('i')">Clear</button>
+      </div>
+      <div class="spin" id="sp-i"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span>Formatting bid request...</span></div>
+      <div class="out" id="out-i">
+        <div class="out-hdr">
+          <div class="out-lbl">Bid email — ready to review</div>
+          <div class="acts">
+            <button class="act ac" onclick="cp('out-i-body')">📋 Copy</button>
+            <button class="act ag" onclick="toGmail('i')">✉️ Gmail Draft</button>
+            <button class="act ash" onclick="toSheet('intake')">📊 Log to Sheets</button>
+            <button class="act ash" onclick="toDrive('i')">💾 Save to Drive</button>
+          </div>
+        </div>
+        <div class="out-body" id="out-i-body"></div>
+        <div class="tracker" id="out-i-note" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ── FOLLOW-UP ───────────────────────────── -->
+    <div class="pane" id="pane-followup">
+      <div class="sec">Quick-fill prospect</div>
+      <div class="pills" id="pills-f"></div>
+      <div class="sec">Quote details</div>
+      <div class="row2">
+        <div><label>Contact name</label><input id="f-name" placeholder="First Last"/></div>
+        <div><label>Company</label><input id="f-co" placeholder="Company name"/></div>
+      </div>
+      <div class="row1"><div><label>Project / product</label><input id="f-proj" placeholder="Strip mall drainage grating — 4 locations"/></div></div>
+      <div class="row2">
+        <div><label>Quote sent date</label><input id="f-dt" placeholder="July 10, 2025"/></div>
+        <div><label>Days since sent</label><input id="f-dy" type="number" placeholder="12"/></div>
+      </div>
+      <div class="row1"><div><label>Previous contact attempts</label><input id="f-pv" placeholder="Left voicemail July 15, no callback"/></div></div>
+      <div class="row2">
+        <div><label>Follow-up reminder date</label><input id="f-rem" type="date"/></div>
+        <div><label>Reminder note</label><input id="f-rnt" placeholder="Check if quote approved"/></div>
+      </div>
+      <div class="btns">
+        <button class="btn bn" onclick="runFollowup()">✦ Draft follow-up</button>
+        <button class="btn bg2" onclick="clr('f')">Clear</button>
+      </div>
+      <div class="spin" id="sp-f"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span>Drafting follow-up email...</span></div>
+      <div class="out" id="out-f">
+        <div class="out-hdr">
+          <div class="out-lbl">Follow-up email — ready to review</div>
+          <div class="acts">
+            <button class="act ac" onclick="cp('out-f-body')">📋 Copy</button>
+            <button class="act ag" onclick="toGmail('f')">✉️ Gmail Draft</button>
+            <button class="act acal" onclick="toCal()">📅 Calendar reminder</button>
+            <button class="act ash" onclick="toSheet('followup')">📊 Log to Sheets</button>
+          </div>
+        </div>
+        <div class="out-body" id="out-f-body"></div>
+      </div>
+    </div>
+
+    <!-- ── LEAD GEN ────────────────────────────── -->
+    <div class="pane" id="pane-leadgen">
+      <div class="sec">ICP version</div>
+      <div class="icp-tog">
+        <div class="icp-btn on" id="icp-a" onclick="setICP('A')">Version A — Project-based<br><small style="font-weight:400;opacity:.75">GC · Civil · Commercial landscaping</small></div>
+        <div class="icp-btn" id="icp-b" onclick="setICP('B')">Version B — Ongoing accounts<br><small style="font-weight:400;opacity:.75">Property mgmt · Facilities · Municipal</small></div>
+      </div>
+      <div class="row1"><div><label>Territory</label><input id="lg-ter" value="Denver Metro and Front Range Colorado"/></div></div>
+      <div class="row1"><div><label>Product focus</label><input id="lg-prod" value="Drainage grating, drainage pipe, gutter systems, stormwater management products"/></div></div>
+      <div class="btns">
+        <button class="btn bn" onclick="runLead()">✦ Generate lead angles</button>
+      </div>
+      <div class="spin" id="sp-lg"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span>Researching lead angles...</span></div>
+      <div class="out" id="out-lg">
+        <div class="out-hdr">
+          <div class="out-lbl" id="lg-lbl">Lead gen research</div>
+          <div class="acts">
+            <button class="act ac" onclick="cp('out-lg-body')">📋 Copy</button>
+            <button class="act ash" onclick="toDrive('lg')">💾 Save to Drive</button>
+            <button class="act ash" onclick="toSheet('lead')">📊 Log to Sheets</button>
+          </div>
+        </div>
+        <div class="out-body" id="out-lg-body"></div>
+      </div>
+    </div>
+
+    <!-- ── ACTIVITY LOG ────────────────────────── -->
+    <div class="pane" id="pane-log">
+      <div class="sec">Session activity — auto-logged to Google Sheets</div>
+      <div id="log-container">
+        <div class="log-row">
+          <div class="log-cell log-hdr">Time</div>
+          <div class="log-cell log-hdr">Action</div>
+          <div class="log-cell log-hdr">Contact / Result</div>
+        </div>
+        <div id="log-rows"><div style="color:#9ca3af;font-size:13px;padding:12px 0">No activity yet this session.</div></div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ────────────────────────────── -->
+    <div class="pane" id="pane-settings">
+
+      <div class="sec">Step 1 — DeepSeek API key</div>
+      <div class="warn">Go to <strong>platform.deepseek.com</strong> → Sign up free → Add $5 credit → API Keys → Create key → paste below. $5 covers the full 14-day pilot (~500 generations).</div>
+      <div class="cfg-f">
+        <label>API key</label>
+        <input id="cfg-key" type="password" placeholder="sk-..." oninput="saveKey()"/>
+        <div class="cfg-st" id="key-st">Not set</div>
+      </div>
+
+      <div class="sec">Step 2 — Google account</div>
+      <div class="info">Connect your <strong>personal Gmail account</strong> — not your work account. This authorizes access to Gmail Drafts, Calendar, Sheets, and Drive only. Nothing in your work systems is touched. Revoke anytime at <strong>myaccount.google.com → Security → Third-party apps</strong>.</div>
+      <div class="warn" id="sheet-id-row" style="display:none">
+        <strong>Google Sheets ID</strong> — paste the ID from your tracker sheet URL below so the tool knows where to log activity.<br>
+        <input id="cfg-sheet" placeholder="Paste Sheet ID here (from URL between /d/ and /edit)" style="margin-top:8px" oninput="saveSheetId()"/>
+        <div class="cfg-st" id="sheet-st">Not set</div>
+      </div>
+      <button class="g-btn" id="g-btn" onclick="connectGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Connect personal Google account
+      </button>
+      <div style="font-size:11px;color:#9ca3af;margin-top:6px" id="g-note">Not connected — Gmail, Calendar, Sheets, and Drive features disabled.</div>
+
+      <div class="rm">
+        <div style="font-size:12px;font-weight:600;color:#dc2626;margin-bottom:8px">🗑 Remove this tool</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:10px;line-height:1.5">Clears your API key, Google token, and all settings from this browser. Close the tab and delete your bookmark. Nothing stored outside this browser.</div>
+        <button class="rm-btn" onclick="removeAll()">Clear all data and disconnect</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const PS=[
+  {l:"Sandra Kowalski",co:"Pioneer Property Management",ph:"720-555-0142",em:"s.kowalski@pioneerpm-test.com",ad:"2590 Walnut St, Denver CO 80205",mat:"- Commercial drainage grating (cast iron 12x12), qty 24\n- 6-inch corrugated drainage pipe, 200 LF\n- Downspout extensions (4-inch), qty 16",nt:"4 strip mall locations. Phased delivery — 2 by end of month, 2 following. Some grating cracked.",pr:"Strip mall drainage grating — 4 locations",dt:"July 10, 2025",dy:"12",pv:"Left voicemail July 15, no callback",ic:"B"},
+  {l:"Kevin Marsh",co:"Grace Property Management",ph:"303-555-0418",em:"k.marsh@gracepm-test.com",ad:"Aurora, CO 80012",mat:"- 5-inch K-style aluminum gutters, 800 LF\n- Micro-mesh gutter guards, 800 LF\n- 3x4-inch aluminum downspouts, qty 32\n- Splash blocks, qty 32",nt:"Annual gutter program for 40+ SFR portfolio. Start with worst 10 properties.",pr:"Annual gutter program — 40+ SFR portfolio",dt:"July 8, 2025",dy:"14",pv:"No — first follow-up",ic:"B"},
+  {l:"Mike Sorrento",co:"Residential",ph:"720-555-0614",em:"mike.sorrento@gmail.com",ad:"Highlands Ranch, CO 80126",mat:"- French drain system, 80 LF\n- 4-inch perforated pipe with sock\n- Drainage rock, ~4 cubic yards\n- 2 downspout extension kits",nt:"New build. Grade toward foundation. HOA requires underground discharge. Before first snow.",pr:"French drain + downspouts — new residential",dt:"July 14, 2025",dy:"7",pv:"Texted July 17 — 'still deciding'",ic:"HO"}
+];
+
+const SCOPES='https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file';
+const CLIENT_ID='504117514025-rct0q1k741gtvvc2g5p9125bllj635oq.apps.googleusercontent.com';
+
+let ICP='A', gToken=null, sessionLog=[], tokenClient=null;
+
+// Load Google Identity Services
+function loadGIS(){
+  const s=document.createElement('script');
+  s.src='https://accounts.google.com/gsi/client';
+  s.onload=()=>{
+    tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:CLIENT_ID,
+      scope:SCOPES,
+      callback:(resp)=>{
+        if(resp.error){toast('Google auth error: '+resp.error,true);return;}
+        gToken=resp.access_token;
+        localStorage.setItem('g_connected','1');
+        setGOn(true);updateBar();
+        document.getElementById('sheet-id-row').style.display='block';
+        toast('Google account connected ✓');
+      }
+    });
+  };
+  document.head.appendChild(s);
+}
+
+// ── Google OAuth ──────────────────────────────────────────────────────────
+function connectGoogle(){
+  if(localStorage.getItem('g_connected')==='1'){
+    if(confirm('Disconnect Google account? Gmail, Calendar, Sheets and Drive features will stop.')){
+      localStorage.removeItem('g_connected');gToken=null;setGOn(false);updateBar();
+    }
+    return;
+  }
+  if(!tokenClient){toast('Google auth not loaded yet — try again in a moment',true);return;}
+  tokenClient.requestAccessToken({prompt:'consent'});
+}
+
+function setGOn(on){
+  document.getElementById('g-dot').className='sdot'+(on?' on':'');
+  document.getElementById('g-lbl').textContent=on?'Google connected':'Google not connected';
+  document.getElementById('g-btn').className='g-btn'+(on?' on':'');
+  document.getElementById('g-btn').innerHTML=on
+    ?'✓ Google connected — click to disconnect'
+    :'<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Connect personal Google account';
+  document.getElementById('g-note').textContent=on?'Connected — Gmail, Calendar, Sheets, Drive active.':'Not connected — Google features disabled.';
+  document.getElementById('g-note').style.color=on?'#166534':'#9ca3af';
+  if(on)document.getElementById('sheet-id-row').style.display='block';
+}
+
+// ── Config ────────────────────────────────────────────────────────────────
+function saveKey(){const k=document.getElementById('cfg-key').value.trim();if(k){localStorage.setItem('ds_k',k);document.getElementById('key-st').textContent='✓ Saved';document.getElementById('key-st').className='cfg-st ok';}updateBar();}
+function saveSheetId(){const s=document.getElementById('cfg-sheet').value.trim();if(s){localStorage.setItem('sheet_id',s);document.getElementById('sheet-st').textContent='✓ Saved';document.getElementById('sheet-st').className='cfg-st ok';}}
+function loadCfg(){
+  const k=localStorage.getItem('ds_k');if(k){document.getElementById('cfg-key').value=k;document.getElementById('key-st').textContent='✓ Saved';document.getElementById('key-st').className='cfg-st ok';}
+  const s=localStorage.getItem('sheet_id');if(s){document.getElementById('cfg-sheet').value=s;document.getElementById('sheet-st').textContent='✓ Saved';document.getElementById('sheet-st').className='cfg-st ok';}
+  if(localStorage.getItem('g_connected')==='1'){gToken='stored';setGOn(true);}
+  updateBar();
+}
+function updateBar(){
+  const k=localStorage.getItem('ds_k');
+  document.getElementById('ai-dot').className='sdot'+(k?' on':'');
+  document.getElementById('ai-lbl').textContent=k?'DeepSeek ready':'AI not set up';
+  if(k&&localStorage.getItem('g_connected')==='1')document.getElementById('banner').style.display='none';
+}
+
+// ── AI call ───────────────────────────────────────────────────────────────
+async function ai(prompt){
+  const key=localStorage.getItem('ds_k');
+  if(!key)throw new Error('No API key — go to Settings first');
+  const r=await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(`DeepSeek error ${r.status}: ${e.error?.message||'check your API key'}`);}
+  const d=await r.json();return d.choices[0].message.content;
+}
+
+// ── Prompt runners ────────────────────────────────────────────────────────
+async function runIntake(){
+  const name=document.getElementById('i-name').value.trim(),co=document.getElementById('i-co').value.trim(),mat=document.getElementById('i-mat').value.trim();
+  if(!name||!co||!mat){alert('Fill in contact name, company, and materials.');return;}
+  show('sp-i');hide('out-i');
+  try{
+    const res=await ai(`You are a professional bid request formatter for a B2B sales rep at an industrial supply company.\n\nConvert field notes into a clean professional email to an internal customer service team requesting an official quote.\n\nCUSTOMER:\n- Name: ${name}\n- Company: ${co}\n- Phone: ${document.getElementById('i-ph').value}\n- Email: ${document.getElementById('i-em').value}\n- Address: ${document.getElementById('i-ad').value}\n\nMATERIALS:\n${mat}\n\nNOTES:\n${document.getElementById('i-nt').value||'None'}\n\nOutput:\n1. Subject line\n2. Email body to "Customer Service Team"\n3. One-line tracker note prefixed exactly: TRACKER NOTE:\n\nProfessional, direct, no fluff.`);
+    const nm=res.match(/TRACKER NOTE:(.*)/i);
+    document.getElementById('out-i-body').textContent=res.replace(/TRACKER NOTE:.*/is,'').trim();
+    const n=document.getElementById('out-i-note');if(nm){n.textContent='📋 '+nm[1].trim();n.style.display='block';}else n.style.display='none';
+    show('out-i');
+    addLog('Bid intake','Generated bid email for '+name+' / '+co);
+  }catch(e){document.getElementById('out-i-body').textContent='Error: '+e.message;show('out-i');}
+  hide('sp-i');
+}
+
+async function runFollowup(){
+  const name=document.getElementById('f-name').value.trim(),co=document.getElementById('f-co').value.trim(),proj=document.getElementById('f-proj').value.trim();
+  if(!name||!co||!proj){alert('Fill in name, company, and project.');return;}
+  show('sp-f');hide('out-f');
+  try{
+    const res=await ai(`You are a sales assistant helping a B2B field rep follow up on an outstanding quote.\n\nWrite a short professional follow-up email. Goal: check in, keep warm, move toward decision — not pushy.\n\nDETAILS:\n- Contact: ${name}\n- Company: ${co}\n- Project: ${proj}\n- Quote sent: ${document.getElementById('f-dt').value}\n- Days out: ${document.getElementById('f-dy').value}\n- Prior contact: ${document.getElementById('f-pv').value||'None'}\n\nTONE: Professional, direct, friendly not casual, readable on a phone.\n\nOutput:\n1. Subject line\n2. Email body (5 sentences max)\n3. Suggested follow-up date if no response`);
+    document.getElementById('out-f-body').textContent=res;
+    show('out-f');
+    addLog('Follow-up','Drafted follow-up for '+name+' / '+co);
+  }catch(e){document.getElementById('out-f-body').textContent='Error: '+e.message;show('out-f');}
+  hide('sp-f');
+}
+
+async function runLead(){
+  show('sp-lg');hide('out-lg');
+  document.getElementById('lg-lbl').textContent=`ICP Version ${ICP} — lead angles`;
+  const ter=document.getElementById('lg-ter').value,prod=document.getElementById('lg-prod').value;
+  try{
+    const prompt=ICP==='A'
+      ?`You are a B2B lead research assistant for a field sales rep at an industrial distributor.\n\nTARGET — Version A (Project-Based):\n- Types: General contractors, civil contractors, site development, commercial landscaping\n- Territory: ${ter}\n- Products: ${prod}\n- Trigger: Active construction, permit filings, land development\n\nTASK:\n1. 10 specific research angles to find these buyers locally\n2. For each: what they build, where to find them, what to say in cold outreach\n3. One outreach email template (4 sentences max)\n\nSpecific. Real sources. No generic advice.`
+      :`You are a B2B lead research assistant for a field sales rep at an industrial distributor.\n\nTARGET — Version B (Ongoing Accounts):\n- Types: Property management firms, municipal public works, facilities companies, large HOAs\n- Territory: ${ter}\n- Products: ${prod}\n- Trigger: Annual maintenance budgets, aging infrastructure, storm damage\n\nTASK:\n1. 10 specific research angles to find these buyers locally\n2. For each: why they need drainage products, where to find them, what to say\n3. One outreach email template (4 sentences max)\n\nSpecific. Real sources. No generic advice.`;
+    const res=await ai(prompt);
+    document.getElementById('out-lg-body').textContent=res;
+    show('out-lg');
+    addLog('Lead gen','Generated ICP Version '+ICP+' lead angles — '+ter);
+  }catch(e){document.getElementById('out-lg-body').textContent='Error: '+e.message;show('out-lg');}
+  hide('sp-lg');
+}
+
+// ── Google integrations ───────────────────────────────────────────────────
+function requireGoogle(){if(!gToken){toast('Connect your Google account in Settings first',true);return false;}return true;}
+
+async function toGmail(mode){
+  if(!requireGoogle())return;
+  const body=document.getElementById(`out-${mode}-body`).textContent;
+  const sm=body.match(/^(?:SUBJECT:|1\.)\s*(.+)/im);
+  const subject=sm?sm[1].trim():(mode==='i'?'Bid Request — Valin':'Follow-Up');
+  const content=body.replace(/^(?:SUBJECT:|1\.).*\n?/im,'').trim();
+  try{
+    const raw=btoa(unescape(encodeURIComponent(`From: me\r\nTo: \r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n${content}`))).replace(/\+/g,'-').replace(/\//g,'_');
+    const r=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/drafts',{method:'POST',headers:{'Authorization':`Bearer ${gToken}`,'Content-Type':'application/json'},body:JSON.stringify({message:{raw}})});
+    if(!r.ok)throw new Error(r.status);
+    toast('Saved to Gmail Drafts ✓');
+    addLog('Gmail draft','Saved: '+subject);
+  }catch(e){toast('Gmail error: '+e.message,true);}
+}
+
+async function toCal(){
+  if(!requireGoogle())return;
+  const rem=document.getElementById('f-rem').value;
+  if(!rem){toast('Set a reminder date first',true);return;}
+  const name=document.getElementById('f-name').value,co=document.getElementById('f-co').value;
+  const note=document.getElementById('f-rnt').value||'Follow up on outstanding quote';
+  const s=new Date(rem+'T09:00:00'),e=new Date(rem+'T09:15:00');
+  try{
+    const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{method:'POST',headers:{'Authorization':`Bearer ${gToken}`,'Content-Type':'application/json'},body:JSON.stringify({summary:`Follow up: ${name} / ${co}`,description:note,start:{dateTime:s.toISOString(),timeZone:'America/Denver'},end:{dateTime:e.toISOString(),timeZone:'America/Denver'},reminders:{useDefault:false,overrides:[{method:'popup',minutes:30}]}})});
+    if(!r.ok)throw new Error(r.status);
+    toast('Added to Google Calendar ✓');
+    addLog('Calendar','Reminder set for '+name+' / '+co+' on '+rem);
+  }catch(e){toast('Calendar error: '+e.message,true);}
+}
+
+async function toSheet(type){
+  if(!requireGoogle())return;
+  const sheetId=localStorage.getItem('sheet_id');
+  if(!sheetId){toast('Add your Sheet ID in Settings first',true);return;}
+  let row;
+  const now=new Date().toLocaleDateString('en-US');
+  if(type==='intake'){
+    const name=document.getElementById('i-name').value,co=document.getElementById('i-co').value;
+    row=[now,name,co,document.getElementById('i-ph').value,document.getElementById('i-em').value,'Y','','','','','','Open','','Bid intake via AI tool'];
+  }else if(type==='followup'){
+    const name=document.getElementById('f-name').value,co=document.getElementById('f-co').value;
+    row=[now,name,co,document.getElementById('f-ph')?.value||'',document.getElementById('f-em')?.value||'','Y','Y','',document.getElementById('f-rem').value,'','','Open','','Follow-up drafted via AI tool'];
+  }else{
+    row=[now,'LEAD GEN RUN','ICP Version '+ICP,'','','','','','','','','','',document.getElementById('lg-ter').value];
+  }
+  try{
+    const r=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A:A:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,{method:'POST',headers:{'Authorization':`Bearer ${gToken}`,'Content-Type':'application/json'},body:JSON.stringify({values:[row]})});
+    if(!r.ok)throw new Error(r.status);
+    toast('Logged to Google Sheets ✓');
+  }catch(e){toast('Sheets error: '+e.message,true);}
+}
+
+async function toDrive(mode){
+  if(!requireGoogle())return;
+  const body=document.getElementById(`out-${mode}-body`).textContent;
+  const title=mode==='i'?`Bid Request — ${document.getElementById('i-name').value} — ${new Date().toLocaleDateString()}`:`Lead Gen ${ICP} — ${new Date().toLocaleDateString()}`;
+  try{
+    const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Authorization':`Bearer ${gToken}`,'Content-Type':'multipart/related; boundary=foo_bar_baz'},body:`--foo_bar_baz\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({name:title,mimeType:'application/vnd.google-apps.document'})}\r\n--foo_bar_baz\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n${body}\r\n--foo_bar_baz--`});
+    if(!r.ok)throw new Error(r.status);
+    toast('Saved to Google Drive ✓');
+    addLog('Drive','Saved: '+title);
+  }catch(e){toast('Drive error: '+e.message,true);}
+}
+
+// ── Activity log ──────────────────────────────────────────────────────────
+function addLog(action,detail){
+  const time=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  sessionLog.unshift({time,action,detail});
+  renderLog();
+}
+function renderLog(){
+  const c=document.getElementById('log-rows');
+  if(!sessionLog.length){c.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:12px 0">No activity yet this session.</div>';return;}
+  c.innerHTML=sessionLog.map(l=>`<div class="log-row"><div class="log-cell">${l.time}</div><div class="log-cell">${l.action}</div><div class="log-cell">${l.detail}</div></div>`).join('');
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────
+function goTab(t,el){document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById('pane-'+t).classList.add('active');}
+function setICP(v){ICP=v;document.getElementById('icp-a').classList.toggle('on',v==='A');document.getElementById('icp-b').classList.toggle('on',v==='B');}
+function show(id){document.getElementById(id).classList.add('on');}
+function hide(id){document.getElementById(id).classList.remove('on');}
+function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(err?' err':'');setTimeout(()=>t.classList.remove('on'),3200);}
+function cp(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>toast('Copied ✓'));}
+function clr(p){
+  if(p==='i'){['i-name','i-co','i-ph','i-em','i-ad','i-mat','i-nt'].forEach(id=>document.getElementById(id).value='');hide('out-i');document.querySelectorAll('#pills-i .pill').forEach(b=>b.classList.remove('on'));}
+  else{['f-name','f-co','f-proj','f-dt','f-dy','f-pv','f-rem','f-rnt'].forEach(id=>document.getElementById(id).value='');hide('out-f');document.querySelectorAll('#pills-f .pill').forEach(b=>b.classList.remove('on'));}
+}
+function removeAll(){
+  if(confirm('Clear all data — API key, Google connection, everything?\n\nThe tool stops working. Close tab and delete bookmark after.')){
+    localStorage.clear();gToken=null;
+    document.getElementById('cfg-key').value='';document.getElementById('key-st').textContent='Not set';document.getElementById('key-st').className='cfg-st';
+    setGOn(false);updateBar();document.getElementById('banner').style.display='block';
+    toast('All cleared. Close this tab and delete your bookmark.');
+  }
+}
+
+function buildPills(cid,mode){
+  const c=document.getElementById(cid);c.innerHTML='';
+  PS.forEach((p,i)=>{
+    const b=document.createElement('button');b.className='pill';
+    b.innerHTML=`${p.l} <span class="badge ${p.ic==='B'?'bg':'ba'}">${p.ic}</span>`;
+    b.onclick=()=>{fill(i,mode);c.querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));b.classList.add('on');};
+    c.appendChild(b);
+  });
+}
+function fill(i,mode){
+  const p=PS[i];
+  if(mode==='i'){document.getElementById('i-name').value=p.l;document.getElementById('i-co').value=p.co;document.getElementById('i-ph').value=p.ph;document.getElementById('i-em').value=p.em;document.getElementById('i-ad').value=p.ad;document.getElementById('i-mat').value=p.mat;document.getElementById('i-nt').value=p.nt;}
+  else{document.getElementById('f-name').value=p.l;document.getElementById('f-co').value=p.co;document.getElementById('f-proj').value=p.pr;document.getElementById('f-dt').value=p.dt;document.getElementById('f-dy').value=p.dy;document.getElementById('f-pv').value=p.pv;const d=new Date();d.setDate(d.getDate()+7);document.getElementById('f-rem').value=d.toISOString().split('T')[0];}
+}
+
+buildPills('pills-i','i');
+buildPills('pills-f','f');
+loadCfg();
+loadGIS();
+</script>
+</body>
+</html>
